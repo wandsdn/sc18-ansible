@@ -1,0 +1,43 @@
+---
+version: 2
+
+dps:
+{% for switch, ports in fauscet_switches | dictsort %}
+    '{{ switch }}':
+        dp_id: {{ devices[switch]["dp_id"] }}
+        hardware: '{{ devices[switch]["hardware"] }}'
+        drop_spoofed_faucet_mac: false
+{% if 'noviflow' in switch %}
+        idle_dst: false
+{% endif %}
+{% for key, value in dp_options | dictsort %}
+        {{ key }}: {{ value }}
+{% endfor %}
+{% if switch in table_sizes %}
+        table_sizes:
+{% for key, value in table_sizes[switch] | dictsort %}
+            {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+        interfaces:
+{% for port, config in ports | dictsort %}
+            {{ port }}:
+                name: '{{ port }}'
+                description: '{{ config["description"] }}'
+                native_vlan: '{{ config["vlan"] }}-l2'
+                max_hosts: {{ max_hosts["port"]["access"] }}
+                acl_in: protect_from_access
+{% endfor %}
+{% set lacp_counter = loop.index %}
+{% for link in devices["noc-faucet"]["children"][switch]["links"] %}
+            {{ link["remote"] }}:
+                description: 'to noc-faucet port {{ link["local"] }}'
+                tagged_vlans: [{{ ports.values() | list | map(attribute='vlan') | map('map_format', "'%s-l2'") | list | numericsort | join(', ') }}]
+                max_hosts: {{ max_hosts["port"]["uplink"] }}
+                acl_in: protect_from_core
+{% if devices["noc-faucet"]["children"][switch]["links"] | length > 1 %}
+                lacp: {{ lacp_counter }}
+                lacp_active: true
+{% endif %}
+{% endfor %}
+{% endfor %}

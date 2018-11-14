@@ -1,0 +1,7 @@
+---
+version: 2
+
+include:
+    - common/acls.yaml
+    - l2/vlans.yaml
+    - l2/datapaths.yaml

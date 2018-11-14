@@ -1,0 +1,24 @@
+---
+
+- name: Generate network configuration
+  hosts: faucet-controllers
+  gather_facts: no
+  tasks:
+    - include_vars: "{{ network_topology }}"
+
+    - name: Generate network interface config in /etc/network/interfaces.d/
+      template:
+        src: "{{ item }}"
+        dest: "/etc/network/interfaces.d/{{ item | basename }}"
+      with_fileglob:
+        - "templates/networking/*"
+
+    - name: Generate /etc/default/isc-dhcp-server
+      template:
+        src: "isc-dhcp-server/default"
+        dest: "/etc/default/isc-dhcp-server"
+
+    - name: Generate /etc/dhcp/dhcpd.conf
+      template:
+        src: "isc-dhcp-server/dhcpd.conf"
+        dest: "/etc/dhcp/dhcpd.conf"

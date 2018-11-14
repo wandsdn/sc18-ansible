@@ -1,0 +1,233 @@
+---
+# What scinet topology should we load?
+network_topology: "scinet.yml"
+
+# Define information about physical devices on the network
+#
+# We need to know the basics about each device:
+#
+#   * faucet hardware type
+#   * OpenFlow dataptath ID
+#
+# For the router (which must always be named noc-faucet) we
+# need to know a few more things:
+#
+#   * The names of devices plugged into it (noc-rtr*, nfv, poseidon are special)
+#   * What ports child devices are plugged in (local for port on noc-faucet,
+#     remote for port on the other device). Multiple ports will automatically
+#     have LACP turned on
+#
+# The "remote" setting for the nfv link is used to generate the network
+# interface information in linux so make sure to get this correct
+devices:
+  noc-faucet:
+    dp_id: "0x6cec5a085e67"
+    hardware: "Generic"
+    children:
+      dnoc420-faucet:
+        links:
+          - {local: 1, remote: 1}
+      dnoc4026-faucet:
+        links:
+          - {local: 15, remote: 1}
+      dnoc2316-faucet:
+        links:
+          - {local: 6, remote: 52}
+      dnoc2644-faucet:
+        links:
+          - {local: 7, remote: 601}
+      dnoc1034-faucet:
+        links:
+          - {local: 18, remote: 101}
+      noc-rtr-1:
+        links:
+          - {local: 21, remote: "et-0/2/0"}
+          - {local: 11, remote: "et-2/2/0"}
+      noc-rtr-2:
+        links:
+          - {local: 10, remote: "Hu0/0/0/8"}
+          - {local: 12, remote: "Hu0/2/0/8"}
+      nfv:
+        links:
+          - {local: 13, remote: "enp3s0"}
+      poseidon:
+        links:
+          - {local: 14, remote: 1}
+  dnoc1034-faucet:
+    dp_id: "0xe01aea43e46f"
+    hardware: "Allied-Telesis"
+  dnoc2644-faucet:
+    dp_id: "0xe01aea2a4f5a"
+    hardware: "Allied-Telesis"
+  dnoc4026-faucet:
+    dp_id: "0x223d5a04e9"
+    hardware: "GenericTFM"
+  dnoc420-faucet:
+    dp_id: "0x78725df42c00"
+    hardware: "CiscoC9K"
+  dnoc2316-faucet:
+    dp_id: "0x78725d1b2ae0"
+    hardware: "CiscoC9K"
+
+# Set limits on how how many hosts can be learned on:
+#
+#   * vlan->booth   vlans used for an individual booth
+#   * vlan->peering vlans used for bgp peering
+#   * port->access  ports used for access port facing booth
+#   * port->uplink  ports used for connecting an access switch to noc-faucet
+#   * port->peering ports used for connecting to a peering router (noc-rtr*)
+#   * port->nfv     ports used for connecting to our NFV box
+max_hosts:
+  vlan:
+    booth: 100
+    peering: 10
+  port:
+    access: 100
+    uplink: 2048
+    peering: 4096
+    nfv: 512
+
+# Faucet tuning options for dp objects
+dp_options:
+  arp_neighbor_timeout: 300
+  nd_neighbor_timeout: 300
+  ignore_learn_ins: 0
+  lacp_timeout: 60
+  metrics_rate_limit_sec: 5
+  timeout: 900
+
+# Faucet tuning options for vlan objects
+vlan_options:
+  proactive_arp_limit: 2052
+  proactive_nd_limit: 2052
+
+# Faucet tuning for minimum table size dimensions
+table_sizes:
+  dnoc420-faucet:
+    port_acl: 256
+    vlan: 512
+    eth_src: 1024
+    eth_dst: 1024
+    flood: 512
+  dnoc2316-faucet:
+    port_acl: 256
+    vlan: 512
+    eth_src: 1024
+    eth_dst: 1024
+    flood: 512
+  dnoc4206-faucet:
+    port_acl: 256
+    vlan: 512
+    eth_src: 2048
+    eth_dst: 2048
+    flood: 512
+
+# Define dhcp parameters
+dhcp_domain_name: "faucet.sc18.org"
+dhcp_default_lease_time: 600
+dhcp_max_lease_time: 7200
+
+# Define some unique numbers for faucet to use
+#
+# NOTE: We use 4090 as the OpenFlow VLAN on the Allied-Telesis.
+faucet_oui: "0e:00:00"
+global_routing_vlan: 4089
+
+# Define our bgp peering parameters
+#
+# We have two high-level objects: "faucet" and "bird". A number of "peers"
+# objects are defined for each to tell them what to peer with. The general rule
+# of thumb is that faucet iBGP peers singularly with bird and then bird eBGP
+# peers full-mesh with all upstreams and returns a FIB to faucet.
+#
+# Inside a BGP peer object we have a few things:
+#
+#   * name       Leave this alone it is a special token used internally
+#   * vlan       For faucet<->bird this can be set to anything, for
+#                bird<->noc-rtr* this needs to be set to the vlan scinet tags
+#                for our uplinks
+#   * local_as   Depends on what scinet supplies
+#   * neighor_as Depends on what scinet supplies
+#   * listen     What IP/Port shall faucet listen on?
+#   * neighbor   What IP/Port shall we peer with, only need to set for
+#                bird<->noc-rtr*
+#   * faucet_ip  What VIP should faucet use on the VLAN created for this peering
+#   * nfv_ip     What IP should bird use on the VLAN created for this peering
+bgp:
+  faucet:
+    routerid: "127.0.0.2"
+    peers:
+      - name: "bird"
+        vlan: 4091
+        local_as: 14031
+        neighbor_as: 14031
+        listen:
+          ipv4:
+            ip: "127.0.0.2"
+            port: 9179
+          ipv6:
+            ip: "::1"
+            port: 9179
+        neighbor:
+          ipv4:
+            ip: "127.0.0.1"
+            port: 179
+          ipv6:
+            ip: "::1"
+            port: 179
+  bird:
+    routerid: "192.0.2.2"
+    peers:
+      - name: "faucet"
+        prefix_limit: 100
+        local_as: 14031
+        neighbor_as: 14031
+        neighbor:
+          ipv4:
+            ip: "127.0.0.2"
+            port: 9179
+          ipv6:
+            ip: "::1"
+            port: 9179
+      - name: "noc-rtr-1"
+        vlan: 194
+        local_as: 14031
+        neighbor_as: 14031
+        neighbor:
+          ipv4:
+            ip: "192.0.2.1/29"
+            port: 179
+          ipv6:
+            ip: "2001:db8:2::1/64"
+            port: 179
+        nfv_ip:
+          ipv4:
+            ip: "192.0.2.2/29"
+          ipv6:
+            ip: "2001:db8:2::2/64"
+        faucet_ip:
+          ipv4:
+            ip: "192.0.2.3/29"
+          ipv6:
+            ip: "2001:db8:2::3/64"
+      - name: "noc-rtr-2"
+        vlan: 195
+        local_as: 14031
+        neighbor_as: 14031
+        neighbor:
+          ipv4:
+            ip: "192.0.2.9/29"
+            port: 179
+          ipv6:
+            ip: "2001:db8:3::1/64"
+            port: 179
+        nfv_ip:
+          ipv4:
+            ip: "192.0.2.10/29"
+          ipv6:
+            ip: "2001:db8:3::2/64"
+        faucet_ip:
+          ipv4:
+            ip: "192.0.2.11/29"
+          ipv6:
+            ip: "2001:db8:3::3/64"

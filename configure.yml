@@ -1,0 +1,9 @@
+---
+- name: Generate faucet configuration
+  import_playbook: faucet.yml
+
+- name: Generate bird configuration
+  import_playbook: bird.yml
+
+- name: Generate nfv configuration
+  import_playbook: nfv.yml

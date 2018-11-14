@@ -1,0 +1,46 @@
+{% set base_interface = devices["noc-faucet"]["children"]["nfv"]["links"][0]["remote"] %}
+{% if bgp["bird"] is defined %}
+{% for peer in bgp["bird"]["peers"] %}
+{% if peer["name"] != "faucet" and peer["nfv_ip"] is defined %}
+{% set vlan_interface = base_interface + "." + peer["vlan"] | string %}
+# {{ peer["name"] }} peering
+auto {{ vlan_interface }}
+iface {{ vlan_interface }} inet static
+  address {{ peer["nfv_ip"]["ipv4"]["ip"] | ipv4('address') }}
+  netmask {{ peer["nfv_ip"]["ipv4"]["ip"] | ipv4('netmask') }}
+  vlan-raw-device {{ base_interface }}
+  up /sbin/sysctl -w net.ipv6.conf.{{ vlan_interface | replace('.', '/') }}.autoconf=0
+  up /sbin/sysctl -w net.ipv6.conf.{{ vlan_interface | replace('.', '/') }}.accept_ra=0
+iface {{ vlan_interface }} inet6 static
+  address {{ peer["nfv_ip"]["ipv6"]["ip"] | ipv6('address') }}
+  netmask {{ peer["nfv_ip"]["ipv6"]["ip"] | ipv6('prefix') }}
+  vlan-raw-device {{ base_interface }}
+{% endif %}
+{% if loop.index != loop.length %}
+
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% for name, vlan in fauscet_vlans | dictnumericsort %}
+{% set vlan_interface = base_interface + "." + vlan['vid'] | string %}
+# {{ vlan["description"] }}
+auto {{ vlan_interface }}
+{% if 'prefix_v4' in vlan %}
+iface {{ vlan_interface }} inet static
+  address {{ vlan["gateway_v4"] | incrementip(1) }}
+  netmask {{ vlan["netmask_v4"] }}
+  vlan-raw-device {{ base_interface }}
+  up /sbin/sysctl -w net.ipv6.conf.{{ vlan_interface | replace('.', '/') }}.autoconf=0
+  up /sbin/sysctl -w net.ipv6.conf.{{ vlan_interface | replace('.', '/') }}.accept_ra=0
+{% endif %}
+{% if 'prefix_v6' in vlan %}
+iface {{ vlan_interface }} inet6 static
+  address {{ vlan["gateway_v6"] | incrementip(1) }}
+  netmask {{ vlan["netmask_v6"] }}
+  vlan-raw-device {{ base_interface }}
+{% endif %}
+{% if loop.index != loop.length %}
+
+{% endif %}
+{% endfor %}

@@ -1,0 +1,85 @@
+---
+version: 2
+
+acls:
+    # ACL zone for incoming packets from clients
+    protect_from_access:
+        # Faucet antispoof protection
+        - rule:
+            dl_src: {{ faucet_oui }}:00:00:00/ff:ff:ff:00:00:00
+            actions:
+                allow: 0     # drop
+        # Drop STP
+        - rule:
+            dl_dst: 01:80:c2:00:00:00
+            actions:
+                allow: 0     # drop
+        # Drop dhcp server traffic
+        - rule:
+            dl_type: 0x800   # ipv4
+            nw_proto: 17     # udp
+            udp_src: 67      # bootps
+            udp_dst: 68      # bootpc
+            actions:
+                allow: 0     # drop
+        # Drop dhcpv6 server traffic
+        - rule:
+            dl_type: 0x86dd  # ipv6
+            nw_proto: 17     # udp
+            udp_src: 547     # dhcpv6-server
+            udp_dst: 546     # dhcpv6-client
+            actions:
+                allow: 0     # drop
+        # Drop icmpv6 router advertisements
+        - rule:
+            dl_type: 0x86dd  # ipv6
+            nw_proto: 58     # icmpv6
+            icmpv6_type: 134 # router advertisement
+            actions:
+                allow: 0     # drop
+        # Allow the rest
+        - rule:
+            actions:
+                allow: 1
+
+    # ACL zone for incoming packets from core devices
+    protect_from_core:
+        - rule:
+            actions:
+                allow: 1
+
+    # ACL rule for dropping protocols other than IPv6
+    ipv6_only:
+        # Allow IPv6 traffic
+        - rule:
+            dl_type: 0x86dd              # ipv6
+            actions:
+                allow: 1                 # allow
+        # Drop other protocols
+        - rule:
+            actions:
+                allow: 0                 # drop
+
+    # LLDP allow for stack ports
+    lldp_allow:
+        - rule:
+            eth_dst: 01:80:c2:00:00:00/ff:ff:ff:00:00:00 # LLDP
+            actions:
+                allow: 1                 # allow
+
+    # Sniff traffic to a port called 'dag'
+    sniff:
+        - rule:
+            actions:
+                allow: 1                 # allow
+                output:
+                    port: dag
+        - rule:
+            actions:
+                allow: 1                 # allow
+
+    # Drop all
+    drop_all:
+        - rule:
+            actions:
+                allow: 0                 # drop

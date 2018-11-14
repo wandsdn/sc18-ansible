@@ -1,0 +1,57 @@
+---
+version: 2
+
+vlans:
+{% if bgp["faucet"] is defined %}
+{% for peer in bgp["faucet"]["peers"] %}
+{% set vlan_mac = faucet_oui | generate_mac(peer["vlan"]) %}
+    {{ peer["name"] }}:
+        description: '{{ peer["name"] }} peering'
+        vid: {{ peer["vlan"] }}
+        max_hosts: {{ max_hosts["vlan"]["peering"] }}
+        faucet_mac: '{{ vlan_mac }}'
+        bgp_routerid: '{{ bgp["faucet"]["routerid"] }}'
+        bgp_as: {{ peer["local_as"] }}
+        bgp_neighbor_as: {{ peer["neighbor_as"] }}
+        bgp_neighbor_addresses: ['{{ peer["neighbor"]["ipv4"]["ip"] }}', '{{ peer["neighbor"]["ipv6"]["ip"] }}']
+        bgp_server_addresses: ['{{ peer["listen"]["ipv4"]["ip"] }}', '{{ peer["listen"]["ipv6"]["ip"] }}']
+        bgp_port: {{ peer["listen"]["ipv4"]["port"] }}
+        bgp_connect_mode: 'passive'
+{% endfor %}
+{% endif %}
+{% if bgp["bird"] is defined %}
+{% for peer in bgp["bird"]["peers"] %}
+{% if peer["name"] != "faucet" and peer["vlan"] is defined %}
+{% set vlan_mac = faucet_oui | generate_mac(peer["vlan"]) %}
+    {{ peer["name"] }}:
+        description: '{{ peer["name"] }} peering'
+        vid: {{ peer["vlan"] }}
+        max_hosts: {{ max_hosts["vlan"]["peering"] }}
+{% if peer["faucet_ip"] is defined %}
+        faucet_mac: '{{ vlan_mac }}'
+        faucet_vips:
+            - '{{ peer["faucet_ip"]["ipv4"]["ip"] | ipv4("address/prefix") }}'
+            - '{{ peer["faucet_ip"]["ipv6"]["ip"] | ipv6("address/prefix") }}'
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% for name, vlan in fauscet_vlans | dictnumericsort %}
+{% set vlan_mac = faucet_oui | generate_mac(vlan['vid']) %}
+    {{ name }}-l3:
+        description: '{{ vlan["description"] }}'
+        vid: {{ vlan['vid'] }}
+        max_hosts: {{ max_hosts["vlan"]["booth"] }}
+{% for key, value in vlan_options | dictsort %}
+        {{ key }}: {{ value }}
+{% endfor %}
+        faucet_mac: '{{ vlan_mac }}'
+        faucet_vips:
+{% if 'gateway_v4' in vlan %}
+            - '{{ vlan["gateway_v4"] | ipv4("address") }}/{{ vlan["prefix_v4"] | ipv4("prefix") }}'
+{% endif %}
+{% if 'gateway_v6' in vlan %}
+            - '{{ vlan["gateway_v6"] | ipv6("address") }}/{{ vlan["prefix_v6"] | ipv6("prefix") }}'
+            - '{{ vlan_mac | mac_to_link_local | ipv6("address") }}/64'
+{% endif %}
+{% endfor %}

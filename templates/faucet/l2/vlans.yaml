@@ -1,0 +1,13 @@
+---
+version: 2
+
+vlans:
+{% for name, vlan in fauscet_vlans | dictnumericsort %}
+    {{ name }}-l2:
+        description: '{{ vlan["description"] }}'
+        vid: {{ vlan['vid'] }}
+        max_hosts: {{ max_hosts["vlan"]["booth"] }}
+{% for key, value in vlan_options | dictsort %}
+        {{ key }}: {{ value }}
+{% endfor %}
+{% endfor %}

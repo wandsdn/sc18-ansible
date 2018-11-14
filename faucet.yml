@@ -1,0 +1,81 @@
+---
+- name: Generate faucet configuration
+  hosts: faucet-controllers:gauge-controllers
+  gather_facts: no
+  vars:
+    all_l3_vlans: "{{ fauscet_vlans.keys() | map('map_format', '%s-l3') | list | numericsort | union(['bird', 'noc-rtr-1', 'noc-rtr-2']) | map('map_format', \"'%s'\") | join(', ')}}"
+    all_l2_vlans: "{{ fauscet_vlans.keys() | map('map_format', \"'%s-l2'\") | list | numericsort | join(', ')}}"
+  tasks:
+    - include_vars: "{{ network_topology }}"
+
+    - name: Create configuration directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "/etc/faucet/common/"
+        - "/etc/faucet/l2/"
+        - "/etc/faucet/l3/"
+
+    - name: Generate common configuration in /etc/faucet/common/
+      template:
+        src: "{{ item }}"
+        dest: "/etc/faucet/common/{{ item | basename }}"
+      with_fileglob:
+        - "templates/faucet/common/*"
+      notify: restart gauge
+
+    - name: Generate l2 configuration in /etc/faucet/l2/
+      template:
+        src: "{{ item }}"
+        dest: "/etc/faucet/l2/{{ item | basename }}"
+      with_fileglob:
+        - "templates/faucet/l2/*"
+      notify: restart gauge
+
+    - name: Generate l3 configuration in /etc/faucet/l3/
+      template:
+        src: "{{ item }}"
+        dest: "/etc/faucet/l3/{{ item | basename }}"
+      with_fileglob:
+        - "templates/faucet/l3/*"
+      notify: restart gauge
+
+    - name: Generate /etc/faucet/faucet-l3.yaml
+      template:
+        src: "faucet/faucet-l3.yaml"
+        dest: "/etc/faucet/faucet-l3.yaml"
+      notify: restart gauge
+
+    - name: Generate /etc/faucet/faucet-l2.yaml
+      template:
+        src: "faucet/faucet-l2.yaml"
+        dest: "/etc/faucet/faucet-l2.yaml"
+      notify: restart gauge
+
+    - name: Check validity of faucet-l3 config
+      shell: check_faucet_config /etc/faucet/faucet-l3.yaml
+
+    - name: Check validity of faucet-l2 config
+      shell: check_faucet_config /etc/faucet/faucet-l2.yaml
+  handlers:
+    - name: restart gauge
+      service:
+        name: gauge
+        state: restarted
+      when: inventory_hostname in groups['gauge-controllers']
+
+- name: Generate gauge configuration
+  hosts: gauge-controllers
+  gather_facts: no
+  tasks:
+    - name: Generate /etc/faucet/gauge.yaml
+      template:
+        src: "faucet/gauge.yaml"
+        dest: "/etc/faucet/gauge.yaml"
+      notify: restart gauge
+  handlers:
+    - name: restart gauge
+      service:
+        name: gauge
+        state: restarted

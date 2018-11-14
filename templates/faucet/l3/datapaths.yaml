@@ -1,0 +1,46 @@
+---
+version: 2
+
+dps:
+    noc-faucet:
+        dp_id: {{ devices["noc-faucet"]["dp_id"] }}
+        hardware: '{{ devices["noc-faucet"]["hardware"] }}'
+        global_vlan: {{ global_routing_vlan }}
+        idle_dst: false
+{% for key, value in dp_options | dictsort %}
+        {{ key }}: {{ value }}
+{% endfor %}
+        interfaces:
+{% for name, device in devices["noc-faucet"]["children"] | sortbylinks %}
+{% set lacp_counter = loop.index %}
+{% for link in device["links"] %}
+            {{ link["local"] }}:
+                description: 'to {{ name }} port {{ link["remote"] }}'
+{% if name == "poseidon" %}
+{% set posidon_ports = devices["noc-faucet"]["children"]["poseidon"]["links"] | map(attribute='local') | list %}
+{% set noc_rtr1_ports = devices["noc-faucet"]["children"]["noc-rtr-1"]["links"] | map(attribute='local') | list %}
+{% set noc_rtr2_ports = devices["noc-faucet"]["children"]["noc-rtr-2"]["links"] | map(attribute='local') | list %}
+{% set nfv_ports = devices["noc-faucet"]["children"]["nfv"]["links"] | map(attribute='local') | list %}
+{% if devices["noc-faucet"]["children"]["poseidon"] %}
+                mirror: [{{ devices["noc-faucet"]["children"].values() | list | sum(attribute='links', start=[]) | map(attribute='local') | list | difference(posidon_ports+noc_rtr1_ports+noc_rtr2_ports+nfv_ports) | sort | join (', ') }}]
+{% endif %}
+{% elif "noc-rtr" in name %}
+                tagged_vlans: ['{{ name }}']
+                max_hosts: {{ max_hosts["port"]["peering"] }}
+{% if device["links"] | length > 1 %}
+                lacp: {{ lacp_counter }}
+{% endif %}
+{% elif "nfv" in name %}
+                tagged_vlans: [{{ all_l3_vlans }}]
+                max_hosts: {{ max_hosts["port"]["nfv"] }}
+{% else %}
+                tagged_vlans: [{{ fauscet_switches[name].values() | list | map(attribute='vlan') | map('map_format', "'%s-l3'") | list | numericsort | join(', ') }}]
+                hairpin_unicast: true
+                max_hosts: {{ max_hosts["port"]["uplink"] }}
+{% if device["links"] | length > 1 %}
+                lacp: {{ lacp_counter }}
+                lacp_active: true
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}

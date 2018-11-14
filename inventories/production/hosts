@@ -1,0 +1,5 @@
+[faucet-controllers]
+localhost
+
+[gauge-controllers]
+faucet-grafana

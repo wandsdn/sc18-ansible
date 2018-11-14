@@ -1,0 +1,11 @@
+---
+version: 2
+
+include:
+    - common/acls.yaml
+    - l3/vlans.yaml
+    - l3/datapaths.yaml
+
+routers:
+    router-scinet:
+        vlans: [{{ all_l3_vlans }}]

@@ -1,0 +1,27 @@
+faucet_configs:
+    - '/etc/faucet/faucet-l3.yaml'
+    - '/etc/faucet/faucet-l2.yaml'
+watchers:
+    port_status_poller:
+        type: 'port_state'
+        all_dps: True
+        db: 'prometheus'
+    port_stats_poller:
+        type: 'port_stats'
+        all_dps: True
+        interval: 10
+        db: 'prometheus'
+    ft_10:
+        interval: 600
+        type: 'flow_table'
+        all_dps: True
+        db: 'text'
+dbs:
+    prometheus:
+        type: 'prometheus'
+        prometheus_addr: '0.0.0.0'
+        prometheus_port: 9303
+    text:
+        file: '/var/log/faucet/flowtable/ft.yml.gz'
+        type: 'text'
+        compress: True

@@ -1,0 +1,21 @@
+---
+
+- name: Generate bird configuration
+  hosts: faucet-controllers
+  gather_facts: no
+  tasks:
+    - include_vars: "{{ network_topology }}"
+
+    - name: Create configuration directory
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "/etc/bird/"
+
+    - name: Generate bird configuration in /etc/bird/
+      template:
+        src: "{{ item }}"
+        dest: "/etc/bird/{{ item | basename }}"
+      with_fileglob:
+        - "templates/bird/*"

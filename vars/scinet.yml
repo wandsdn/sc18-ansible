@@ -1,0 +1,291 @@
+fauscet_switches:
+  dnoc1034-faucet:
+    1:
+      description: Xilinx (Booth 927)
+      vlan: 927-A
+    2:
+      description: Georgia Institute of Technology (Booth 1217)
+      vlan: 1217-A
+  dnoc2316-faucet:
+    1:
+      description: Penguin Computing (Booth 1608)
+      vlan: 1608-A
+    2:
+      description: Arista Networks (Booth 2022)
+      vlan: 2022-A
+    3:
+      description: Cray Inc. (Booth 2413)
+      vlan: 2413-A
+    4:
+      description: HPE (Booth 2429)
+      vlan: 2429-A
+    5:
+      description: Bright Computing (Booth 3025)
+      vlan: 3025-A
+    6:
+      description: Mellanox Technologies (Booth 3207)
+      vlan: 3207-A
+    12:
+      description: Google (Booth 1604)
+      vlan: 1604-A
+    13:
+      description: University of Utah (Booth 1828)
+      vlan: 1828-A
+    14:
+      description: Cisco Systems (Booth 2803)
+      vlan: 2803-A
+  dnoc2644-faucet:
+    101:
+      description: Corsa Technology (Booth 3043)
+      vlan: 3043-A
+    201:
+      description: Department of Energy (Booth 2433)
+      vlan: 2433-A
+    501:
+      description: CIENA (Booth 2847)
+      vlan: 2847-A
+  dnoc4026-faucet:
+    3:
+      description: Lenovo (United States) Inc. (Booth 3617)
+      vlan: 3617-A
+    4:
+      description: NCSA (Booth 3635)
+      vlan: 3635-A
+    5:
+      description: SCinet (Booth 3651)
+      vlan: 3651-A
+    6:
+      description: Globus (Booth 4201)
+      vlan: 4201-A
+    7:
+      description: Qumulo, Inc. (Booth 4227)
+      vlan: 4227-A
+    12:
+      description: Texas Advanced Computing Center (Booth 3707)
+      vlan: 3707-A
+  dnoc420-faucet:
+    2:
+      description: Clemson University (Booth 227)
+      vlan: 227-A
+fauscet_vlans:
+  1217-A:
+    description: Georgia Institute of Technology (Booth 1217)
+    dhcp_range_end: 192.0.199.30
+    dhcp_range_start: 192.0.199.2
+    gateway_v4: 192.0.199.1
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.199.0/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 324
+  1604-A:
+    description: Google (Booth 1604)
+    dhcp_range_end: 192.0.213.30
+    dhcp_range_start: 192.0.213.2
+    gateway_v4: 192.0.213.1
+    gateway_v6: 2001:db8:161::1
+    netmask_v4: 255.255.255.224
+    netmask_v6: 64
+    prefix_v4: 192.0.213.0/27
+    prefix_v6: 2001:db8:161::/64
+    rns1_v4: 192.0.249.254
+    rns1_v6: 2001:db8:18::254
+    rns2_v4: 192.0.249.250
+    rns2_v6: 2001:db8:29::250
+    vid: 353
+  1608-A:
+    description: Penguin Computing (Booth 1608)
+    dhcp_range_end: 192.0.193.30
+    dhcp_range_start: 192.0.193.2
+    gateway_v4: 192.0.193.1
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.193.0/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 298
+  1828-A:
+    description: University of Utah (Booth 1828)
+    dhcp_range_end: 192.0.195.62
+    dhcp_range_start: 192.0.195.34
+    gateway_v4: 192.0.195.33
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.195.32/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 315
+  2022-A:
+    description: Arista Networks (Booth 2022)
+    dhcp_range_end: 192.0.222.30
+    dhcp_range_start: 192.0.222.2
+    gateway_v4: 192.0.222.1
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.222.0/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 99
+  227-A:
+    description: Clemson University (Booth 227)
+    dhcp_range_end: 192.0.143.30
+    dhcp_range_start: 192.0.143.2
+    gateway_v4: 192.0.143.1
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.143.0/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 284
+  2413-A:
+    description: Cray Inc. (Booth 2413)
+    dhcp_range_end: 192.0.209.62
+    dhcp_range_start: 192.0.209.34
+    gateway_v4: 192.0.209.33
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.209.32/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 394
+  2429-A:
+    description: HPE (Booth 2429)
+    dhcp_range_end: 192.0.217.222
+    dhcp_range_start: 192.0.217.194
+    gateway_v4: 192.0.217.193
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.217.192/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 382
+  2433-A:
+    description: Department of Energy (Booth 2433)
+    dhcp_range_end: 192.0.194.254
+    dhcp_range_start: 192.0.194.130
+    gateway_v4: 192.0.194.129
+    netmask_v4: 255.255.255.128
+    prefix_v4: 192.0.194.128/25
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 308
+  2803-A:
+    description: Cisco Systems (Booth 2803)
+    dhcp_range_end: 192.0.217.190
+    dhcp_range_start: 192.0.217.162
+    gateway_v4: 192.0.217.161
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.217.160/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 383
+  2847-A:
+    description: CIENA (Booth 2847)
+    dhcp_range_end: 192.0.193.254
+    dhcp_range_start: 192.0.193.226
+    gateway_v4: 192.0.193.225
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.193.224/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 306
+  3025-A:
+    description: Bright Computing (Booth 3025)
+    dhcp_range_end: 192.0.199.94
+    dhcp_range_start: 192.0.199.66
+    gateway_v4: 192.0.199.65
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.199.64/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 330
+  3043-A:
+    description: Corsa Technology (Booth 3043)
+    dhcp_range_end: 192.0.199.126
+    dhcp_range_start: 192.0.199.98
+    gateway_v4: 192.0.199.97
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.199.96/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 312
+  3207-A:
+    description: Mellanox Technologies (Booth 3207)
+    dhcp_range_end: 192.0.213.190
+    dhcp_range_start: 192.0.213.162
+    gateway_v4: 192.0.213.161
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.213.160/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 54
+  3617-A:
+    description: Lenovo (United States) Inc. (Booth 3617)
+    dhcp_range_end: 192.0.199.62
+    dhcp_range_start: 192.0.199.34
+    gateway_v4: 192.0.199.33
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.199.32/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 331
+  3635-A:
+    description: NCSA (Booth 3635)
+    dhcp_range_end: 192.0.197.254
+    dhcp_range_start: 192.0.197.130
+    gateway_v4: 192.0.197.129
+    gateway_v6: 2001:db8:140::1
+    netmask_v4: 255.255.255.128
+    netmask_v6: 64
+    prefix_v4: 192.0.197.128/25
+    prefix_v6: 2001:db8:140::/64
+    rns1_v4: 192.0.249.254
+    rns1_v6: 2001:db8:18::254
+    rns2_v4: 192.0.249.250
+    rns2_v6: 2001:db8:29::250
+    vid: 320
+  3651-A:
+    description: SCinet (Booth 3651)
+    dhcp_range_end: 192.0.131.30
+    dhcp_range_start: 192.0.131.2
+    gateway_v4: 192.0.131.1
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.131.0/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 51
+  3707-A:
+    description: Texas Advanced Computing Center (Booth 3707)
+    dhcp_range_end: 192.0.130.254
+    dhcp_range_start: 192.0.130.226
+    gateway_v4: 192.0.130.225
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.130.224/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 38
+  4201-A:
+    description: Globus (Booth 4201)
+    dhcp_range_end: 192.0.131.94
+    dhcp_range_start: 192.0.131.66
+    gateway_v4: 192.0.131.65
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.131.64/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 184
+  4227-A:
+    description: Qumulo, Inc. (Booth 4227)
+    dhcp_range_end: 192.0.200.190
+    dhcp_range_start: 192.0.200.162
+    gateway_v4: 192.0.200.161
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.200.160/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 401
+  927-A:
+    description: Xilinx (Booth 927)
+    dhcp_range_end: 192.0.219.222
+    dhcp_range_start: 192.0.219.194
+    gateway_v4: 192.0.219.193
+    netmask_v4: 255.255.255.224
+    prefix_v4: 192.0.219.192/27
+    rns1_v4: 192.0.249.254
+    rns2_v4: 192.0.249.250
+    vid: 405
+
